@@ -1,5 +1,7 @@
 package com.fatec.whatsclone.ui.screens
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,6 +52,15 @@ fun FloatingActionButtonChatScreen() {
     var messageText by remember { mutableStateOf("") }
     var currentUser by remember { mutableStateOf(1) }
 
+    // Estado para controlar a rotação
+    val isRotated = remember { mutableStateOf(false) }
+    // Animação da rotação
+    val rotation by animateFloatAsState(
+        targetValue = if (isRotated.value) 45f else 0f,
+        animationSpec = tween(durationMillis = 300),
+        label = "rotationAnimation"
+    )
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -57,8 +69,16 @@ fun FloatingActionButtonChatScreen() {
                     IconButton(onClick = { showInfo = true }) {
                         Icon(Icons.Filled.Info, contentDescription = "Info")
                     }
-                    IconButton(onClick = { /* Action for MoreVert icon */ }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "More")
+                    IconButton(onClick = {
+                        // Alterna o estado da rotação ao clicar
+                        isRotated.value = !isRotated.value
+                        // Adicione aqui outras lógicas necessárias
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = "Mais opções",
+                            modifier = Modifier.rotate(rotation) // Aplica a rotação animada
+                        )
                     }
                 }
             )
@@ -67,7 +87,13 @@ fun FloatingActionButtonChatScreen() {
             FloatingActionButton(
                 onClick = {
                     if (messageText.isNotBlank()) {
-                        chatMessages.add(ChatMessage(messageText, isSent = true, user = currentUser))
+                        chatMessages.add(
+                            ChatMessage(
+                                messageText,
+                                isSent = true,
+                                user = currentUser
+                            )
+                        )
                         messageText = ""
                         currentUser = if (currentUser == 1) 2 else 1
                     }
@@ -89,7 +115,13 @@ fun FloatingActionButtonChatScreen() {
                     onMessageChange = { messageText = it },
                     onSendClick = {
                         if (messageText.isNotBlank()) {
-                            chatMessages.add(ChatMessage(messageText, isSent = true, user = currentUser))
+                            chatMessages.add(
+                                ChatMessage(
+                                    messageText,
+                                    isSent = true,
+                                    user = currentUser
+                                )
+                            )
                             messageText = ""
                             currentUser = if (currentUser == 1) 2 else 1
                         }
@@ -156,13 +188,10 @@ fun WhatsAppChat(
 }
 
 
-
-
-
 @Preview(showBackground = true)
 @Composable
 fun FloatingActionButtonChatScreenPreview() {
-    WhatsCloneTheme   {
+    WhatsCloneTheme {
         FloatingActionButtonChatScreen()
     }
 }
